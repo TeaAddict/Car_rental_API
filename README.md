@@ -58,7 +58,7 @@ openssl genpkey -algorithm RSA -out src/main/resources/app.key -pkeyopt rsa_keyg
 ### Extract the Public Key:
 
 ```sh
-openssl rsa -pubout -in src/main/resources/app.pub -out app.pub
+openssl rsa -pubout -in src/main/resources/app.key -out src/main/resources/app.pub
 ```
 
 Ensure that these keys are stored securely and never committed to version control.
