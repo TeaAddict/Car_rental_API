@@ -52,13 +52,13 @@ To generate RSA key pairs for JWT authentication, use the following commands:
 ### Generate a Private Key:
 
 ```sh
-openssl genpkey -algorithm RSA -out app.key -pkeyopt rsa_keygen_bits:2048
+openssl genpkey -algorithm RSA -out src/main/resources/app.key -pkeyopt rsa_keygen_bits:2048
 ```
 
 ### Extract the Public Key:
 
 ```sh
-openssl rsa -pubout -in private_key.pem -out app.pub
+openssl rsa -pubout -in src/main/resources/app.pub -out app.pub
 ```
 
 Ensure that these keys are stored securely and never committed to version control.
