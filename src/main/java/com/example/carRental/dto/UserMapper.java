@@ -22,4 +22,8 @@ public class UserMapper {
     );
   }
 
+  public static List<UserResponseDTO> toUserResponseDTOS(List<User> users) {
+    return users.stream().map(UserMapper::toUserResponseDTO).toList();
+  }
+
 }

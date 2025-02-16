@@ -8,14 +8,12 @@ import com.example.carRental.service.CarService;
 import com.example.carRental.service.RentalService;
 import com.example.carRental.service.UserService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
@@ -43,19 +41,18 @@ public class RentalController {
     long daysBetween = period.getDays();
     BigDecimal price = BigDecimal.valueOf(daysBetween * baseRate).setScale(2, RoundingMode.HALF_UP);
     Optional<Car> car = carService.findCarById(rentalRequestDTO.carId());
+    String userName = authentication.getName();
 
-    long userId = ((User) authentication.getPrincipal()).getId();
-    Optional<User> userFromDB = userService.getUserById(userId);
+    Optional<User> user = userService.getUserByUsername(userName);
+    if (user.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
 
     if (car.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
 
-    if (userFromDB.isEmpty()) {
-      return ResponseEntity.notFound().build();
-    }
-
-    List<Car> cars = userFromDB.get()
+    List<Car> cars = user.get()
             .getRentals()
             .stream()
             .map(Rental::getCar)
@@ -78,7 +75,7 @@ public class RentalController {
 
     Rental rental = new Rental(
             car.get(),
-            userFromDB.get(),
+            user.get(),
             rentalRequestDTO.rentalStart(),
             rentalRequestDTO.rentalEnd(),
             price
@@ -93,7 +90,7 @@ public class RentalController {
   @PostMapping("/rentals/return/{rentalId}")
   public ResponseEntity<?> returnCar(@PathVariable long rentalId, Authentication authentication) {
     final BigDecimal baseRate = BigDecimal.valueOf(1);
-    long userId = ((User) authentication.getPrincipal()).getId();
+    String userName = authentication.getName();
 
     Optional<Rental> rental = rentalService.getRentalById(rentalId);
     if (rental.isEmpty()) {
@@ -103,7 +100,7 @@ public class RentalController {
     final BigDecimal price = rentalService.calculatePrice(rental.get().getRentalStart(), rental.get().getRentalEnd(), baseRate);
     final long carId = rental.get().getCar().getId();
 
-    Optional<User> user = userService.getUserById(userId);
+    Optional<User> user = userService.getUserByUsername(userName);
     if (user.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
@@ -135,10 +132,11 @@ public class RentalController {
   }
 
   @GetMapping("/rentals/my")
-  public ResponseEntity<List<RentalResponseDTO>> getMyRentals(Authentication authentication) {
-    long userId = ((User) authentication.getPrincipal()).getId();
-
-    Optional<User> user = userService.getUserById(userId);
+//  public ResponseEntity<List<RentalResponseDTO>> getMyRentals(Authentication authentication) {
+  public ResponseEntity<?> getMyRentals(Authentication authentication) {
+//    long userId = ((User) authentication.getPrincipal()).getId();
+    String userName = authentication.getName();
+    Optional<User> user = userService.getUserByUsername(userName);
     if (user.isEmpty()) {
       return ResponseEntity.notFound().build();
     }

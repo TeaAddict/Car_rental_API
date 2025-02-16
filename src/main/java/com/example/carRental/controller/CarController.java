@@ -7,13 +7,9 @@ import com.example.carRental.model.Car;
 import com.example.carRental.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +22,7 @@ public class CarController {
   public CarController(CarService carService) {
     this.carService = carService;
   }
-  
+
   @GetMapping("/cars")
   public ResponseEntity<List<Car>> getCars() {
     return ResponseEntity.ok(carService.findAllCars());

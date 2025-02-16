@@ -39,40 +39,24 @@ public class SecurityConfig {
   private RSAPrivateKey privateKey;
 
   // JWT auth
-//  @Bean
-//  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//    http.authorizeHttpRequests((authorize) -> authorize
-//                            .requestMatchers(HttpMethod.GET, "/api/cars").hasRole("USER")
-////                    .anyRequest().authenticated()
-//            ).csrf(c -> c.disable())
-//            .httpBasic(Customizer.withDefaults())
-
-  /// /            .oauth2ResourceServer(o -> o.jwt(Customizer.withDefaults()))
-//            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//            .exceptionHandling((exceptions) -> exceptions
-//                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-//                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-//            );
-//    return http.build();
-//  }
-
-  // BASIC AUTH
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests((authorize) -> authorize
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/cars").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/api/cars/{id}").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/cars/{id}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("SCOPE_ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/cars").hasAuthority("SCOPE_ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/cars/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/cars/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/cars/available").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/cars").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/rentals").hasRole("USER")
-                    .requestMatchers(HttpMethod.POST, "/api/rentals/return/{rentalId}").hasRole("USER")
-                    .requestMatchers(HttpMethod.GET, "/api/rentals/my").hasRole("USER")
-                    .requestMatchers(HttpMethod.GET, "/api/rentals/history").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/cars").hasAuthority("SCOPE_ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/rentals").hasAuthority("SCOPE_ROLE_USER")
+                    .requestMatchers(HttpMethod.POST, "/api/rentals/return/{rentalId}").hasAuthority("SCOPE_ROLE_USER")
+                    .requestMatchers(HttpMethod.GET, "/api/rentals/my").hasAuthority("SCOPE_ROLE_USER")
+                    .requestMatchers(HttpMethod.GET, "/api/rentals/history").hasAuthority("SCOPE_ROLE_ADMIN")
                     .anyRequest().authenticated()
             ).csrf(AbstractHttpConfigurer::disable)
             .httpBasic(Customizer.withDefaults())
+            .oauth2ResourceServer(o -> o.jwt(Customizer.withDefaults()))
             .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling((exceptions) -> exceptions
                     .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
@@ -80,6 +64,31 @@ public class SecurityConfig {
             );
     return http.build();
   }
+
+  // BASIC AUTH
+//  @Bean
+//  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http.authorizeHttpRequests((authorize) -> authorize
+//                    .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+//                    .requestMatchers(HttpMethod.POST, "/api/cars").hasRole("ADMIN")
+//                    .requestMatchers(HttpMethod.DELETE, "/api/cars/{id}").hasRole("ADMIN")
+//                    .requestMatchers(HttpMethod.PUT, "/api/cars/{id}").hasRole("ADMIN")
+//                    .requestMatchers(HttpMethod.GET, "/api/cars/available").permitAll()
+//                    .requestMatchers(HttpMethod.GET, "/api/cars").hasRole("ADMIN")
+//                    .requestMatchers(HttpMethod.POST, "/api/rentals").hasRole("USER")
+//                    .requestMatchers(HttpMethod.POST, "/api/rentals/return/{rentalId}").hasRole("USER")
+//                    .requestMatchers(HttpMethod.GET, "/api/rentals/my").hasRole("USER")
+//                    .requestMatchers(HttpMethod.GET, "/api/rentals/history").hasRole("ADMIN")
+//                    .anyRequest().authenticated()
+//            ).csrf(AbstractHttpConfigurer::disable)
+//            .httpBasic(Customizer.withDefaults()) // Enables basic auth
+//            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//            .exceptionHandling((exceptions) -> exceptions
+//                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+//                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+//            );
+//    return http.build();
+//  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
